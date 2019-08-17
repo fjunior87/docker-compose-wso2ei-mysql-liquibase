@@ -76,7 +76,7 @@ This is a container that has a liquibase project to create a table in MySQL Cont
 
    docker-compose up -d
 
-4. Abra no navegador
+4. Go to the navigator:
 
    https://localhost:9443/carbon
 
