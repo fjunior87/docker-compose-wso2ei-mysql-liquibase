@@ -1,0 +1,62 @@
+version: '3'
+services:
+    mysql:
+        container_name: mysql
+        restart: always
+        build:
+            context: ./mysql
+            dockerfile: Dockerfile
+        ports:
+            - "${MYSQL_PORT}:3306"
+        volumes:
+            - ${MYSQL_DATA}:/var/lib/mysql
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        networks:
+            - code-network
+    liquibase:
+        container_name: liquibase
+        build: 
+            context: ./liquibase
+            dockerfile: Dockerfile
+        environment: 
+            - LIQUIBASE_PROJECT_DIR=${LIQUIBASE_PROJECT_DIR}
+            - LIQUIBASE_DATABASE_DRIVER=${LIQUIBASE_DATABASE_DRIVER}
+            - LIQUIBASE_DATABASE_URL=jdbc:mysql://${LIQUIBASE_DATABASE_HOST}:3306/${MYSQL_DATABASE}
+            - LIQUIBASE_DATABASE_USERNAME=${MYSQL_USER}
+            - LIQUIBASE_DATABASE_PASSWORD=${MYSQL_PASSWORD}
+        depends_on:
+            - mysql
+        links: 
+            - mysql
+        networks:
+            - code-network
+    wso2-ei:
+        container_name: wso2_ei
+        image: wso2/wso2ei-integrator:6.4.0-centos
+        links:
+            - mysql
+        volumes:
+            - ${WSO2_CUSTOMIZATIONS}:/home/wso2carbon/customizations
+            - ./wso2-ei/ei-entrypoint.sh:/home/wso2carbon/ei-entrypoint.sh
+            - ${WSO2_LOCAL_CARBONAPPS}:${WSO2_CONTAINER_CARBONAPPS}
+        entrypoint: /home/wso2carbon/ei-entrypoint.sh 
+        depends_on: 
+            - mysql
+            - liquibase
+        ports:
+            - "9443:9443"
+            - "8280:8280"
+            - "8243:8243"
+        expose: 
+            - "9443"
+            - "8280"
+            - "8243"
+        networks:
+            - code-network
+networks:
+    code-network:
+        driver: bridge
