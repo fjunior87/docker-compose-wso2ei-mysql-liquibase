@@ -2,10 +2,12 @@ version: '3'
 services:
     mysql:
         container_name: mysql
+        user: "1000:50"
         restart: always
         build:
             context: ./mysql
             dockerfile: Dockerfile
+        command: "--innodb-use-native-aio=0"
         ports:
             - "${MYSQL_PORT}:3306"
         volumes:
