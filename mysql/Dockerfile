@@ -1,4 +1,4 @@
-FROM mysql:5.7.19
+FROM mysql:5.7.33
 
 MAINTAINER Francisco Ribeiro <fjunior87@gmail.com>
 

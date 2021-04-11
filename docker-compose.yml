@@ -7,11 +7,12 @@ services:
         build:
             context: ./mysql
             dockerfile: Dockerfile
-        command: "--innodb-use-native-aio=0"
+        command: "--innodb-use-native-aio=0 --innodb-fast-shutdown=0"
         ports:
             - "${MYSQL_PORT}:3306"
         volumes:
             - ${MYSQL_DATA}:/var/lib/mysql
+            - ./mysql/run.sh:/stack/localdb/run.sh:rw
         environment:
             - MYSQL_DATABASE=${MYSQL_DATABASE}
             - MYSQL_USER=${MYSQL_USER}
